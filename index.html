@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="ja"><head>
+<html lang="ja">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>たしのまとめ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%);
@@ -27,52 +30,24 @@
             align-items: center;
         }
 
+        /* ヘッダーデザイン */
         .header {
             text-align: center;
             margin-top: 50px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             padding: 20px;
         }
 
         .header h1 {
             font-size: 2.2rem;
             font-weight: 700;
-            margin: 0 0 10px 0;
+            margin: 0;
             background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            outline: none;
         }
 
-        /* 編集パネル */
-        .builder-ui {
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            border: 2px solid var(--accent-color);
-        }
-
-        .builder-ui button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 20px;
-            background: var(--accent-color);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .builder-ui button:hover { background: var(--accent-hover); }
-
+        /* タイルの配置設定 */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -83,6 +58,7 @@
             box-sizing: border-box;
         }
 
+        /* タイルボタンの基本デザイン */
         .tile {
             background-color: var(--card-bg);
             border-radius: 20px;
@@ -93,109 +69,105 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
+            overflow: hidden;
             z-index: 1;
         }
 
-        .tile i.main-icon {
+        /* ホバー時の浮き上がりアニメーション */
+        .tile:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        /* ホバー時の背景グラデーションアニメーション */
+        .tile::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .tile:hover::before {
+            opacity: 1;
+        }
+
+        /* アイコンの調整 */
+        .tile i {
             font-size: 2.8rem;
             color: var(--accent-color);
             margin-bottom: 18px;
             transition: color 0.4s ease;
         }
 
-        .tile span.tile-text {
+        /* テキストの調整 */
+        .tile span {
             color: var(--text-main);
             font-weight: 700;
             font-size: 1.05rem;
             text-align: center;
             line-height: 1.5;
             transition: color 0.4s ease;
-            outline: none;
         }
 
-        /* 閲覧モード（通常時）のアニメーション */
-        body:not(.is-editing) .tile:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
-            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-        }
-        body:not(.is-editing) .tile:hover i.main-icon,
-        body:not(.is-editing) .tile:hover span.tile-text {
+        /* ホバー時にアイコンとテキストを白に反転 */
+        .tile:hover i,
+        .tile:hover span {
             color: #ffffff;
         }
 
-        /* 編集モード用 */
-        .edit-only { display: none; }
-        body.is-editing .edit-only { display: flex; }
-        body.is-editing .tile { border: 2px dashed #cbd5e0; box-shadow: none; }
-
-        .tile-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .tile-action-btn {
-            background: #edf2f7;
-            color: #4a5568;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-        }
-
-        .tile-action-btn:hover { background: var(--accent-color); color: white; }
-        .delete-btn:hover { background: #e53e3e !important; }
-
+        /* スマートフォン向けのレスポンシブ対応 */
         @media (max-width: 480px) {
-            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            .tile {
+                padding: 25px 10px;
+                border-radius: 16px;
+            }
+            .tile i {
+                font-size: 2.2rem;
+                margin-bottom: 12px;
+            }
+            .tile span {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
-<body class="">
-
-    
+<body>
 
     <header class="header">
-        <h1 id="page-title">たしのまとめ</h1>
+        <h1>たしのまとめ</h1>
     </header>
 
-    <main class="grid-container" id="link-container">
+    <main class="grid-container">
         <a href="image-gen.html" class="tile">
-            
-            <i class="fa-solid fa-wand-magic-sparkles main-icon"></i>
-            <span class="tile-text">画像生成<br>補助ツール</span>
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>画像生成<br>補助ツール</span>
         </a>
 
         <a href="routine-gen.html" class="tile">
-            
-            <i class="fa-solid fa-clock-rotate-left main-icon"></i>
-            <span class="tile-text">定期作成<br>補助ツール</span>
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>定期作成<br>補助ツール</span>
         </a>
 
         <a href="icon-frame.html" class="tile">
-            
-            <i class="fa-solid fa-crop-simple main-icon"></i>
-            <span class="tile-text">アイコンフレーム<br>補助ツール</span>
+            <i class="fa-solid fa-crop-simple"></i>
+            <span>アイコンフレーム<br>補助ツール</span>
         </a>
 
-        <a href="glossary.html" class="tile">
-            
-            <i class="fa-solid fa-book-open main-icon"></i>
-            <span class="tile-text">配信用語集</span>
+        <a href="https://tashi-kusanose.github.io/stream_Glossary/" class="tile">
+            <i class="fa-solid fa-book-open"></i>
+            <span>配信用語集</span>
         </a>
+        
     </main>
 
-    
-
-
-</body></html>
+</body>
+</html>
